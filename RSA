@@ -1,18 +1,83 @@
 #STARTER
 #-------------------------------------------------------------
-RSA Starter 2
-RSA Starter 3
-RSA Starter 4
-RSA Starter 5
-RSA Starter 6
+#301
+#RSA Starter 2
+print(pow(12, 0x10001, 17*23))
+
+#RSA Starter 3
+#-------------------------------------------------------------
+#882564595536224140639625987657529300394956519977044270821168
+p = 857504083339712752489993810777
+q = 1029224947942998075080348647219
+print((p - 1) * (q - 1))
+
+#RSA Starter 4
+#-------------------------------------------------------------
+#121832886702415731577073962957377780195510499965398469843281
+p = 857504083339712752489993810777
+q = 1029224947942998075080348647219
+e = 65537
+d=pow(e, -1, (p - 1) * (q - 1))
+print(d)
+
+#RSA Starter 5
+#-------------------------------------------------------------
+#13371337
+p = 857504083339712752489993810777
+q = 1029224947942998075080348647219
+n = 882564595536224140639625987659416029426239230804614613279163
+e = 65537
+c = 77578995801157823671636298847186723593814843845525223303932
+d=pow(e, -1, (p - 1) * (q - 1))
+print(pow(c, d, n))
+
+#RSA Starter 6
+#-------------------------------------------------------------
+#6ac9bb8f110b318a40ad8d7e57defdcce2652f5928b5f9b97c1504d7096d7af1d34e477b30f1a08014e8d525b14458b709a77a5fa67d4711bd19da1446f9fb0ffd9fdedc4101bdc9a4b26dd036f11d02f6b56f4926170c643f302d59c4fe8ea678b3ca91b4bb9b2024f2a839bec1514c0242b57e1f5e77999ee67c450982730252bc2c3c35acb4ac06a6ce8b9dbf84e29df0baa7369e0fd26f6dfcfb22a464e05c5b72baba8f78dc742e96542169710918ee2947749477869cb3567180ccbdfe6fdbe85bcaca4bf6da77c8f382bb4c8cd56dee43d1290ca856318c97f1756b789e3cac0c9738f5e9f797314d39a2ededb92583d97124ec6b313c4ea3464037d3
+import hashlib
+from Crypto.Util.number import *
+
+f = open("private.key", 'r')
+data = f.readlines()
+cnt = 0
+for i in data:
+    if cnt == 0:
+        N = int(i[4:-1])
+    else:
+        d = int(i[4:-1])
+    cnt += 1
+print(N)
+print(d)
+flag = b"crypto{Immut4ble_m3ssag1ng}"
+
+hash_flag = hashlib.sha256(flag).digest()
+print(hash_flag)
+sign_message = long_to_bytes(pow(bytes_to_long(hash_flag), d, N))
+print(sign_message.hex())
+
 
 #PRIMES PART 1
 #-------------------------------------------------------------
-Factoring 
-Inferius Prime 
-Monoprime 
-Square Eyes 
-Manyprime 
+#Factoring
+#19704762736204164635843
+
+#Inferius Prime 
+#crypto{N33d_b1g_pR1m35}
+from Crypto.Util.number import *
+
+n = 742449129124467073921545687640895127535705902454369756401331
+e = 3
+ct = 39207274348578481322317340648475596807303160111338236677373
+p = 752708788837165590355094155871
+q = 986369682585281993933185289261
+d = inverse(e, (p - 1) * (q - 1))
+pt = pow(ct, d, n)
+print(long_to_bytes(pt))
+
+
+#Monoprime 
+#Square Eyes 
+#Manyprime 
 
 #PUBLIC EXPONENT
 #-------------------------------------------------------------
