@@ -1,7 +1,97 @@
 #PROBABILITY----------------------------------------------------------------------------
 #Jack's Birthday Hash 
+#1420
+n = 1 << 11
+P = 1
+for i in range(1, n):
+    P = pow((1 - 1/n), i)
+    nP = 1 - P
+    if nP > 0.5:
+        print(i)
+        break
+
 #Jack's Birthday Confusion 
+#76
+from math import factorial
+
+n = 2048
+for i in range(n):
+    probability = 1 - factorial(n) / (factorial(n - i) * pow(n, i))
+    if probability > 0.75:
+        print(i)
+        break
 #COLLISIONS----------------------------------------------------------------------------------
-Collider 
-Hash Stuffing 
-PriMeD5
+#Collider 
+from pwn import *
+import json
+from array import array
+
+r = remote('socket.cryptohack.org', 13389)
+
+input1 = array('I', [0x6165300e, 0x87a79a55, 0xf7c60bd0, 0x34febd0b, 0x6503cf04, 0x854f709e, 0xfb0fc034, 0x874c9c65,
+                     0x2f94cc40, 0x15a12deb, 0x5c15f4a3, 0x490786bb, 0x6d658673, 0xa4341f7d, 0x8fd75920, 0xefd18d5a])
+input2 = array('I', [x ^ y for x, y in zip(input1, [0, 0, 0, 0, 0, 1 << 10, 0, 0, 0, 0, 1 << 31, 0, 0, 0, 0, 0])])
+
+msg1 = bytes(input1)
+msg2 = bytes(input2)
+
+payload1 = {
+    "document": msg1.hex()
+}
+
+payload2 = {
+    "document": msg2.hex()
+}
+
+r.sendlineafter('Give me a document to store\n', json.dumps(payload1))
+
+r.sendlineafter('\n', json.dumps(payload2))
+
+print(r.recvline())
+r.close()
+#Hash Stuffing 
+from pwn import *
+import json
+
+block1 = b'a' * 32
+block2 = b'b' * 32
+
+m1 = (block1 + block2).hex()
+m2 = (block2 + block1).hex()
+
+payload = json.dumps({"m1": m1, "m2": m2}).encode()
+
+r = remote("socket.cryptohack.org", 13405, level='debug')
+r.sendlineafter(b'in JSON: ', payload)
+
+#PriMeD5
+from pwn import *
+import json
+from Crypto.Util.number import *
+from array import array
+from sympy import nextprime
+
+input1 = array('I', [0x6165300e, 0x87a79a55, 0xf7c60bd0, 0x34febd0b, 0x6503cf04,
+                     0x854f709e, 0xfb0fc034, 0x874c9c65, 0x2f94cc40, 0x15a12deb, 0x5c15f4a3, 0x490786bb,
+                     0x6d658673, 0xa4341f7d, 0x8fd75920, 0xefd18d5a])
+
+input2 = array('I', [x ^ y for x, y in zip(input1, [0, 0, 0, 0, 0, 1 << 10, 0, 0, 0, 0, 1 << 31, 0, 0, 0, 0, 0])])
+
+r = remote('socket.cryptohack.org', 13392)
+
+input1 = bytes(input1)
+input2 = bytes(input2)
+
+prime = nextprime(bytes_to_long(input1) * 256 * 256)
+nonPrime = prime - bytes_to_long(input1) * 256 * 256 + bytes_to_long(input2) * 256 * 256
+
+print(prime)
+print(nonPrime)
+
+r.recvuntil("\n")
+r.sendline(json.dumps({"option": "sign", "prime": prime}))
+
+data = json.loads(r.recvline())
+
+r.sendline(json.dumps({"option": "check", "prime": nonPrime, "signature": data["signature"], "a": 751}))
+r.interactive()
